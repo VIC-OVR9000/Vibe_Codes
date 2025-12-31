@@ -1,0 +1,52 @@
+#!/bin/bash
+# Mimic C64 POKE logic in Bash
+
+# C64 Colors: Black border (0), Green background (5)
+# ANSI codes: Black text (\e[30m), Green background (\e[42m)
+BG_GREEN="\e[42m"
+TXT_BLACK="\e[30m"
+RESET="\e[0m"
+CLEAR="\e[H\e[J"
+
+# Initial Screen Setup (POKE 53280,0:POKE 53281,5:PRINT CHR$(147))
+echo -ne "${BG_GREEN}${TXT_BLACK}${CLEAR}"
+
+# Center of a standard 80x24 terminal (approx. 40x12)
+CX=40
+CY=12
+
+# Draw static elements (POKE labels outside circles)
+tput cup $((CY-3)) $CX; echo "W"  # Up Label
+tput cup $((CY+3)) $CX; echo "S"  # Down Label
+tput cup $CY $((CX-6)); echo "A"  # Left Label
+tput cup $CY $((CX+6)); echo "D"  # Right Label
+
+# Draw center cross (POKE 1523,43)
+tput cup $CY $CX; echo "+"
+
+# Main Input Loop
+while true; do
+    # Read single character without waiting for Enter (-n1 -s)
+    # -t 0.1 allows for the "flash delay" effect
+    read -n1 -s -t 0.1 K
+    
+    # Reset all buttons to default state (Circle symbol 'Q' / PETSCII 81)
+    # In Bash, we use 'O' or '●' to mimic the C64 circle character
+    COLOR_OFF="${TXT_BLACK}"
+    COLOR_ON="\e[37m" # White flash (closest to C64 Green/White contrast)
+
+    # Mimic: POKE U,81:POKE CU,1-UK (and others)
+    # Positions are relative to the center cross (CX, CY)
+    
+    # UP (W)
+    tput cup $((CY-2)) $CX; [[ "$K" == "w" ]] && echo -e "${COLOR_ON}O${TXT_BLACK}" || echo "O"
+    # DOWN (S)
+    tput cup $((CY+2)) $CX; [[ "$K" == "s" ]] && echo -e "${COLOR_ON}O${TXT_BLACK}" || echo "O"
+    # LEFT (A)
+    tput cup $CY $((CX-4)); [[ "$K" == "a" ]] && echo -e "${COLOR_ON}O${TXT_BLACK}" || echo "O"
+    # RIGHT (D)
+    tput cup $CY $((CX+4)); [[ "$K" == "d" ]] && echo -e "${COLOR_ON}O${TXT_BLACK}" || echo "O"
+
+    # Exit on Ctrl+C or specific key
+    [[ "$K" == "q" ]] && echo -e "${RESET}" && clear && exit
+done
