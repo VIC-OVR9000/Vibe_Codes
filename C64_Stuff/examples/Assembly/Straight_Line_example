@@ -1,0 +1,27 @@
+* = $0801       ; Standard start address for BASIC "SYS" programs
+                ; (Includes a 12-byte BASIC header so you can just type RUN)
+.byte $0c,$08,$0a,$00,$9e,$20,$32,$30,$36,$31,$00,$00,$00
+
+main:
+    ; 01 PRINT CHR$(147) - Clear the screen using KERNAL routine
+    lda #$93        ; PETSCII for Clear Screen (147 decimal)
+    jsr $ffd2       ; Call CHROUT to print the character
+
+    ; 02 & 03: POKE 1523+I, 81 (Loops from -19 to +20)
+    ; Total range: 1504 ($05E0) to 1543 ($0607)
+    ldx #0          ; Use X as a loop counter (0 to 39 for 40 characters)
+    lda #81         ; Screen code for 'Q' (decimal 81)
+loop:
+    sta $05e0,x     ; Store 'Q' at 1504 + offset X
+    inx             ; Increment loop counter
+    cpx #40         ; Check if we've filled 40 positions (-19 to 20 inclusive)
+    bne loop        ; Repeat if not finished
+
+    ; 04 POKE 1523, 81 (Already covered by the loop above, but specifically:)
+    sta $05f3       ; Address 1523 in hex is $05F3
+
+    ; 04 POKE 55795, 0 (Color RAM manipulation)
+    lda #0          ; Load value 0
+    sta $d9f3       ; Address 55795 in hex is $D9F3
+
+    rts             ; Return to BASIC
