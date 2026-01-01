@@ -455,7 +455,7 @@ def main():
         use_png_planet = False
         use_png_sat = True
         planet_sprite = None
-        sat_frames = None#"//home//vic_ovr9000//Documents/Screenshot_20251231_224222.png"
+        sat_frames = None
 
         if args.planet_png and PIL_AVAILABLE and os.path.isfile(args.planet_png):
             ps = load_png_sprite(args.planet_png, planet_radius_cells * 2 + 1, bg_rgb,
