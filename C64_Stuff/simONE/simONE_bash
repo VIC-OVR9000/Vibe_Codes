@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# 10: Clear screen, black background, hide cursor
+printf "\033[40m\033[2J\033[?25l"
+
+# 50-60: Initial Variables
+X0=40; Y0=12       # Planet Position (Middle of terminal)
+X1=50; Y1=12       # Satellite Position
+VX1=0; VY1=0       # Velocities
+ID="■"             # Satellite Shape (Box)
+AC=0.2             # Gravity Strength (Reduced for Bash scale)
+DE=0.98            # Friction/Damping
+TH=1.0             # Thrust Strength
+
+# 18: Print Controls
+printf "\033[24;1H\033[37mW-A-S-D: THRUST THE SATELLITE (Ctrl+C to Exit)"
+
+while true; do
+    # 70: Move Cursor and Draw Planet (Blue)
+    printf "\033[%d;%dH\033[34mO" "$Y0" "$X0"
+
+    # 70: Draw Satellite (White)
+    printf "\033[%d;%dH\033[37m%s" "$Y1" "$X1" "$ID"
+
+    # 82: Get Input (Non-blocking)
+    read -rsn1 -t 0.05 KEY
+    ID="■" # Reset to Box
+    case "$KEY" in
+        w|W) VY1=$(echo "$VY1 - $TH" | bc -l); ID="*" ;;
+        s|S) VY1=$(echo "$VY1 + $TH" | bc -l); ID="*" ;;
+        a|A) VX1=$(echo "$VX1 - $TH" | bc -l); ID="*" ;;
+        d|D) VX1=$(echo "$VX1 + $TH" | bc -l); ID="*" ;;
+    esac
+
+    # 115-135: Gravity Logic (Towards X0, Y0)
+    if (( $(echo "$X1 < $X0" | bc -l) )); then VX1=$(echo "$VX1 + $AC" | bc -l); fi
+    if (( $(echo "$X1 > $X0" | bc -l) )); then VX1=$(echo "$VX1 - $AC" | bc -l); fi
+    if (( $(echo "$Y1 < $Y0" | bc -l) )); then VY1=$(echo "$VY1 + $AC" | bc -l); fi
+    if (( $(echo "$Y1 > $Y0" | bc -l) )); then VY1=$(echo "$VY1 - $AC" | bc -l); fi
+
+    # 75: Apply Velocity and Damping
+    # Clean old satellite position before updating
+    printf "\033[%d;%dH " "$Y1" "$X1"
+
+    X1=$(echo "$X1 + $VX1" | bc -l)
+    Y1=$(echo "$Y1 + $VY1" | bc -l)
+    VX1=$(echo "$VX1 * $DE" | bc -l)
+    VY1=$(echo "$VY1 * $DE" | bc -l)
+
+    # 78-81: Screen Wrap / Bounds
+    if (( $(echo "$X1 > 80" | bc -l) )); then X1=1; fi
+    if (( $(echo "$X1 < 1" | bc -l) )); then X1=80; fi
+    if (( $(echo "$Y1 > 24" | bc -l) )); then Y1=1; fi
+    if (( $(echo "$Y1 < 1" | bc -l) )); then Y1=24; fi
+
+    # Round positions for printf (BC returns floats)
+    X1=$(printf "%.0f" "$X1")
+    Y1=$(printf "%.0f" "$Y1")
+done
