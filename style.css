@@ -1,0 +1,41 @@
+:root {
+    --border: 1px solid #ccc;
+    --pad: 20px;
+    --font-main: 'Times New Roman', Times, serif; /* Keeping that classic look from your image */
+}
+
+body {
+    font-family: var(--font-main);
+    line-height: 1.5;
+    margin: 40px;
+}
+
+/* The Grid Module */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--pad);
+    margin: var(--pad) 0;
+}
+
+/* Simple Card/Box Style */
+.module {
+    border: var(--border);
+    padding: 15px;
+    background: #fafafa;
+}
+
+/* Navigation List */
+ul.nav-list {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+hr {
+    border: 0;
+    border-top: var(--border);
+    margin: 40px 0;
+}
