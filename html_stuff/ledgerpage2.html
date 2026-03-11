@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ledger Command Center v2</title>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
+        .header { height: 46px; border-bottom: 1px solid #30363d; background: #161b22; }
+        .container { display: grid; grid-template-columns: 320px 1fr 380px; height: calc(100vh - 46px); gap: 12px; padding: 12px; box-sizing: border-box; }
+        .col { display: flex; flex-direction: column; gap: 12px; height: 100%; overflow-y: auto; }
+        .widget-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .widget-header { padding: 10px 15px; background: #21262d; border-bottom: 1px solid #30363d; font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; }
+        .content { flex-grow: 1; padding: 10px; position: relative; }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="tradingview-widget-container">
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName": "NASDAQ:NVDA", "title": "NVDA"}, {"proName": "NASDAQ:PLTR", "title": "PLTR"},
+            {"proName": "NYSE:LLY", "title": "LLY"}, {"proName": "NASDAQ:AMD", "title": "AMD"},
+            {"proName": "NASDAQ:COST", "title": "COST"}, {"proName": "AMEX:GLD", "title": "GLD"}
+          ],
+          "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive"
+        }
+        </script>
+    </div>
+</div>
+
+<div class="container">
+    <div class="col">
+        <div class="widget-box" style="height: 280px;">
+            <div class="widget-header">Market Vibe (Fear/Greed)</div>
+            <div class="content" style="display:flex; align-items:center; justify-content:center;">
+                <img src="https://alternative.me/crypto/fear-and-greed-index.png" style="width:90%; border-radius:8px; filter: brightness(0.9);">
+            </div>
+        </div>
+        <div class="widget-box" style="flex-grow: 1;">
+            <div class="widget-header">Sector Performance</div>
+            <div class="content" id="tv-market-overview">
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+                {
+                  "colorTheme": "dark", "showChart": true, "locale": "en",
+                  "symbolsGroups": [{ "name": "Sectors", "symbols": [
+                    {"s": "SPY"}, {"s": "QQQ"}, {"s": "XLK", "d": "Tech"}, {"s": "XLP", "d": "Staples"}, {"s": "XLE", "d": "Energy"}
+                  ]}]
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="widget-box" style="flex-grow: 1;">
+            <div class="widget-header">Interactive Terminal</div>
+            <div id="tradingview_master" style="height: 100%;"></div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="widget-box" style="height: 300px;">
+            <div class="widget-header">Live Social Buzz (NVDA/PLTR)</div>
+            <div class="content" style="padding:0;">
+                <script src="https://stocktwits.com/addon/widget/2/widget-loader.min.js"></script>
+                <div id="stocktwits-widget-news"></div>
+                <script type="text/javascript">
+                  STWT.Widget({
+                    container: 'stocktwits-widget-news', symbol: 'NVDA', 
+                    width: '100%', height: '300', limit: '15', scrollbars: true,
+                    streaming: true, title: 'Real-time Feed',
+                    style: { link_color: '#58a6ff', header_style: 'dark' }
+                  });
+                </script>
+            </div>
+        </div>
+        
+        <div class="widget-box" style="flex-grow: 1;">
+            <div class="widget-header">Ledger Deployment Summary</div>
+            <div class="content">
+                <div style="font-size: 28px; font-weight: bold; color: #3fb950; margin-bottom: 5px;">$66,903.07</div>
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 15px;">TOTAL INVESTED CAPITAL</div>
+                
+                <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                    <tr style="color: #8b949e; border-bottom: 1px solid #30363d;">
+                        <th align="left" style="padding: 5px 0;">ASSET</th>
+                        <th align="right">WEIGHT</th>
+                    </tr>
+                    <tr><td style="padding: 8px 0;">LLY / COST</td><td align="right">51.1%</td></tr>
+                    <tr><td style="padding: 8px 0;">Big Tech (NVDA/MSFT)</td><td align="right">22.4%</td></tr>
+                    <tr><td style="padding: 8px 0;">Staples/Energy/Other</td><td align="right">26.5%</td></tr>
+                </table>
+                <div style="margin-top: 20px; font-size: 11px; color: #f85149; background: rgba(248, 81, 73, 0.1); padding: 8px; border-radius: 4px;">
+                    ⚠️ Concentration Alert: LLY & COST represent >50% of your current ledger value.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new TradingView.widget({
+        "autosize": true,
+        "symbol": "NASDAQ:NVDA",
+        "interval": "D",
+        "theme": "dark",
+        "style": "1",
+        "container_id": "tradingview_master",
+        "allow_symbol_change": true,
+        "details": true,
+        "hotlist": true,
+        "calendar": true
+    });
+</script>
+
+</body>
+</html>
